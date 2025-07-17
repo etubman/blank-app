@@ -1,0 +1,69 @@
+import streamlit as st
+import numpy as np
+import pandas as pd
+from sklearn.linear_model import LogisticRegression
+
+# Title
+st.title("TAVI Length of Stay Predictor")
+st.markdown("Estimate the probability of **early discharge (≤48h)** following Transcatheter Aortic Valve Implantation (TAVI)")
+
+# Sidebar inputs
+st.sidebar.header("Patient Characteristics")
+age = st.sidebar.slider("Age", 50, 100, 75)
+sex = st.sidebar.selectbox("Sex", ["Male", "Female"])
+sts_score = st.sidebar.slider("STS Risk Score (%)", 0.1, 20.0, 3.0)
+creatinine = st.sidebar.slider("Serum Creatinine (mg/dL)", 0.5, 3.0, 1.0)
+afib = st.sidebar.selectbox("Atrial Fibrillation", ["No", "Yes"])
+
+st.sidebar.header("Procedural Factors")
+Anaesthesia = st.sidebar.selectbox("Anaesthesia Type", ["Local/Conscious Sedation", "General Anaesthesia"])
+vascular_complication = st.sidebar.selectbox("Vascular Complications", ["No", "Yes"])
+blood_transfusion = st.sidebar.selectbox("Blood Transfusion Required", ["No", "Yes"])
+valve_type = st.sidebar.selectbox("Valve Type", ["Balloon-Expandable", "Self-Expanding"])
+ep_study_done = st.sidebar.selectbox("EP Study Done", ["Yes", "No"])
+
+# Encode input
+def encode_inputs():
+    return pd.DataFrame({
+        'Age': [age],
+        'Sex': [1 if sex == "Female" else 0],
+        'STS': [sts_score],
+        'Creatinine': [creatinine],
+        'AFib': [1 if afib == "Yes" else 0],
+        'Anaesthesia': [1 if Anaesthesia == "General Anaesthesia" else 0],
+        'VascularComp': [1 if vascular_complication == "Yes" else 0],
+        'Transfusion': [1 if blood_transfusion == "Yes" else 0],
+        'ValveType': [1 if valve_type == "Self-Expanding" else 0],
+        'EPStudy': [1 if ep_study_done == "Yes" else 0],
+    })
+
+X_input = encode_inputs()
+
+# Dummy logistic regression model (placeholder)
+# Coefficients inspired by known predictors from the paper
+coefficients = np.array([-0.05,  # Age
+                         -0.3,   # Female
+                         -0.1,   # STS
+                         -0.4,   # Creatinine
+                         -0.5,   # AFib
+                          -1,    # General Anaesthesia
+                         -0.8,   # Vascular Complication
+                         -0.7,   # Blood Transfusion
+                         -0.6,   # Self-expanding valve
+                          0.4])  # EP Study
+intercept = 1.5  # base log-odds
+
+# Logistic function
+log_odds = intercept + np.dot(X_input.values, coefficients)
+prob_early_discharge = 1 / (1 + np.exp(-log_odds))
+
+# Output
+st.subheader("Prediction Result")
+if prob_early_discharge >= 0.5:
+    st.success(f"🟢 Likely early discharge (≤48h) — Probability: {prob_early_discharge[0]:.2f}")
+else:
+    st.warning(f"🔴 Likely extended stay (>48h) — Probability: {prob_early_discharge[0]:.2f}")
+
+# Show raw features if desired
+with st.expander("See input features"):
+    st.write(X_input)
