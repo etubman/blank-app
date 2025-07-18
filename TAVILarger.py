@@ -9,14 +9,22 @@ def predict_los_fast(age, sex_male, local_anaesthesia, egfr, no_conduction, no_b
         1 if no_conduction else 0,
         1 if no_bleeding else 0,
     ])
-    return 3 if score >= 5 else 4 if score >= 3 else 5
+    if score >= 5:
+        los = 3
+        risk = "Low"
+    elif score >= 3:
+        los = 4
+        risk = "Medium"
+    else:
+        los = 5
+        risk = "High"
+    return los, risk, score
 
 def main():
     st.title("FAST‑TAVI II Early Discharge Predictor")
 
     age = st.number_input("Age (years)", min_value=18, max_value=120, value=82)
     sex = st.radio("Sex", ("Male", "Female"))
-    local_anaesthesia = st.checkbox("Procedure under local anaesthesia")
 
     egfr = st.slider(
         "eGFR (mL/min/1.73 m²)",
@@ -26,11 +34,12 @@ def main():
         help="eGFR < 33 indicates renal dysfunction and higher risk"
     )
 
+    local_anaesthesia = st.checkbox("Procedure under local anaesthesia")
     conduction = st.checkbox("Conduction disturbance or pacemaker requirement")
     bleeding = st.checkbox("Bleeding or vascular complication")
 
     if st.button("Predict Length of Stay"):
-        los = predict_los_fast(
+        los, risk, score = predict_los_fast(
             age,
             sex == "Male",
             local_anaesthesia,
@@ -38,7 +47,17 @@ def main():
             not conduction,
             not bleeding
         )
-        st.success(f"Predicted LOS: **{los} days** (FAST‑TAVI II model)")
+
+        st.success(f"Predicted LOS: **{los} days**")
+        st.info(f"Risk category: **{risk} Risk** (Score: {score}/6)")
+
+        # Optional: color-coded display
+        if risk == "Low":
+            st.markdown("🟢 **Low Risk** – likely candidate for early discharge (≤ 3 days)")
+        elif risk == "Medium":
+            st.markdown("🟠 **Medium Risk** – consider close monitoring (LOS ~4 days)")
+        else:
+            st.markdown("🔴 **High Risk** – prolonged hospitalization likely (≥ 5 days)")
 
 if __name__ == "__main__":
     main()
