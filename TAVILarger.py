@@ -24,8 +24,7 @@ def main():
     # Create two columns: one for the logo, one for the title
     col1, col2 = st.columns([1, 5])
     with col1:
-        print("\n")
-        st.image("freeman_logo.png", width=60)
+        st.markdown("<img src='freeman_logo.png' width='60' style='display: block; margin: 0 auto;'>" , unsafe_allow_html=True)
     with col2:
         st.title("Freeman Hospital TAVI Length of Stay and Risk Calculator")
 
