@@ -28,7 +28,7 @@ def main():
         st.write("")
         st.write("")
         try:
-            st.image("freeman_logo.png", width=100)
+            st.image("freeman_logo.png", width=70)
         except:
             st.write("🏥")  # Fallback hospital emoji
     
