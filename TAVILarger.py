@@ -1,11 +1,11 @@
 import streamlit as st
 
-def predict_los_fast(age, sex_male, local_anaesthesia, no_aki, no_conduction, no_bleeding):
+def predict_los_fast(age, sex_male, local_anaesthesia, egfr, no_conduction, no_bleeding):
     score = sum([
         1 if age < 85 else 0,
         1 if sex_male else 0,
         1 if local_anaesthesia else 0,
-        1 if no_aki else 0,
+        1 if egfr >= 33 else 0,         # eGFR < 33 = risk
         1 if no_conduction else 0,
         1 if no_bleeding else 0,
     ])
@@ -17,8 +17,16 @@ def main():
     age = st.number_input("Age (years)", min_value=18, max_value=120, value=82)
     sex = st.radio("Sex", ("Male", "Female"))
     local_anaesthesia = st.checkbox("Procedure under local anaesthesia")
-    aki = st.checkbox("Acute kidney injury during admission")  # invert later
-    conduction = st.checkbox("New conduction disturbance / pre-existing RBBB / pacemaker requirement")
+
+    egfr = st.slider(
+        "eGFR (mL/min/1.73 m²)",
+        min_value=5,
+        max_value=120,
+        value=60,
+        help="eGFR < 33 indicates renal dysfunction and higher risk"
+    )
+
+    conduction = st.checkbox("Conduction disturbance or pacemaker requirement")
     bleeding = st.checkbox("Bleeding or vascular complication")
 
     if st.button("Predict Length of Stay"):
@@ -26,11 +34,11 @@ def main():
             age,
             sex == "Male",
             local_anaesthesia,
-            not aki,
+            egfr,
             not conduction,
             not bleeding
         )
-        st.success(f"Predicted LOS: **{los} days** (FAST‑TAVI II)")        
+        st.success(f"Predicted LOS: **{los} days** (FAST‑TAVI II model)")
 
 if __name__ == "__main__":
     main()
