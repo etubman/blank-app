@@ -21,7 +21,7 @@ def predict_los_fast(age, sex_male, local_anaesthesia, egfr, no_conduction, no_b
     return los, risk, score
 
 def main():
-    st.title("FAST‑TAVI II Early Discharge Predictor")
+    st.title("Freeman Hospital TAVI LoS and Risk Calculator")
 
     age = st.number_input("Age (years)", min_value=18, max_value=120, value=82)
     sex = st.radio("Sex", ("Male", "Female"))
