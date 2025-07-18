@@ -25,8 +25,10 @@ def main():
     col1, col2 = st.columns([1, 4])
     
     with col1:
+        st.write("")
+        st.write("")
         try:
-            st.image("freeman_logo.png", width=70)
+            st.image("freeman_logo.png", width=100)
         except:
             st.write("🏥")  # Fallback hospital emoji
     
