@@ -22,7 +22,7 @@ def predict_los_fast(age, sex_male, local_anaesthesia, egfr, no_conduction, no_b
 
 def main():
     # Display logo
-    st.image("freeman_logo.png", width=150)  # Adjust width as needed
+    st.image("freeman_logo.png", width=60)  # Adjust width as needed
 
     # Title
     st.title("Freeman Hospital TAVI LoS and Risk Calculator")
