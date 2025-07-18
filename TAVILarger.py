@@ -35,7 +35,7 @@ def main():
     )
 
     local_anaesthesia = st.checkbox("Procedure under local anaesthesia")
-    conduction = st.checkbox("Conduction disturbance or pacemaker requirement")
+    conduction = st.checkbox("New conduction disturbance or pacemaker requirement")
     bleeding = st.checkbox("Bleeding or vascular complication")
 
     if st.button("Predict Length of Stay"):
