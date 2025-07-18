@@ -27,11 +27,11 @@ def main():
     with col1:
         st.write("")
     with col2:
-        # Made logo optional since file might not exist
+        # Made logo optional since file might not exist - centered
         try:
-            st.image("freeman_logo.png", width=50)
+            st.image("freeman_logo.png", width=50, use_column_width=False)
         except:
-            st.write("🏥")  # Fallback hospital emoji
+            st.markdown("<div style='text-align: center'>🏥</div>", unsafe_allow_html=True)  # Fallback hospital emoji
     with col3:
         st.write("")
     
