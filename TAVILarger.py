@@ -21,14 +21,17 @@ def predict_los_fast(age, sex_male, local_anaesthesia, egfr, no_conduction, no_b
     return los, risk, score
 
 def main():
-    # Logo aligned to the left
-    try:
-        st.image("freeman_logo.png", width=70)
-    except:
-        st.write("🏥 Freeman Hospital")  # Fallback hospital emoji
+    # Logo and title on the same row
+    col1, col2 = st.columns([1, 4])
     
-    # Text Heading
-    st.title("Freeman Hospital TAVI Length of Stay and Risk Calculator")
+    with col1:
+        try:
+            st.image("freeman_logo.png", width=70)
+        except:
+            st.write("🏥")  # Fallback hospital emoji
+    
+    with col2:
+        st.title("Freeman Hospital TAVI Length of Stay and Risk Calculator")
     
     # Inputs
     age = st.number_input("Age (years)", min_value=18, max_value=120, value=82)
