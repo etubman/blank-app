@@ -33,7 +33,7 @@ with col3:
     st.write("")
 
     #Text Heading
-        st.title("Freeman Hospital TAVI Length of Stay and Risk Calculator")
+    st.title("Freeman Hospital TAVI Length of Stay and Risk Calculator")
 
     # Inputs
     age = st.number_input("Age (years)", min_value=18, max_value=120, value=82)
