@@ -5,7 +5,7 @@ def predict_los_fast(age, sex_male, local_anaesthesia, egfr, no_conduction, no_b
         1 if age < 85 else 0,
         1 if sex_male else 0,
         1 if local_anaesthesia else 0,
-        1 if egfr >= 33 else 0,         # eGFR < 33 = risk
+        1 if egfr >= 33 else 0,
         1 if no_conduction else 0,
         1 if no_bleeding else 0,
     ])
@@ -21,8 +21,13 @@ def predict_los_fast(age, sex_male, local_anaesthesia, egfr, no_conduction, no_b
     return los, risk, score
 
 def main():
+    # Display logo
+    st.image("freeman_logo.png", width=150)  # Adjust width as needed
+
+    # Title
     st.title("Freeman Hospital TAVI LoS and Risk Calculator")
 
+    # Inputs
     age = st.number_input("Age (years)", min_value=18, max_value=120, value=82)
     sex = st.radio("Sex", ("Male", "Female"))
 
@@ -51,7 +56,6 @@ def main():
         st.success(f"Predicted LOS: **{los} days**")
         st.info(f"Risk category: **{risk} Risk** (Score: {score}/6)")
 
-        # Optional: color-coded display
         if risk == "Low":
             st.markdown("🟢 **Low Risk** – likely candidate for early discharge (≤ 3 days)")
         elif risk == "Medium":
