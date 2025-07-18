@@ -21,19 +21,11 @@ def predict_los_fast(age, sex_male, local_anaesthesia, egfr, no_conduction, no_b
     return los, risk, score
 
 def main():
-    # Fixed the column layout - st.beta_columns is deprecated
-    col1, col2, col3 = st.columns([1, 6, 1])
-    
-    with col1:
-        st.write("")
-    with col2:
-        # Made logo optional since file might not exist - centered
-        try:
-            st.image("freeman_logo.png", width=60)
-        except:
-            st.markdown("<div style='text-align: center'>🏥</div>", unsafe_allow_html=True)  # Fallback hospital emoji
-    with col3:
-        st.write("")
+    # Logo aligned to the left
+    try:
+        st.image("freeman_logo.png", width=70)
+    except:
+        st.write("🏥 Freeman Hospital")  # Fallback hospital emoji
     
     # Text Heading
     st.title("Freeman Hospital TAVI Length of Stay and Risk Calculator")
