@@ -21,16 +21,16 @@ def predict_los_fast(age, sex_male, local_anaesthesia, egfr, no_conduction, no_b
     return los, risk, score
 
 def main():
-col1, col2, col3 = st.beta_columns([1,6,1])
+        col1, col2, col3 = st.beta_columns([1,6,1])
 
 with col1:
-st.write("")
+        st.write("")
 
 with col2:
        st.image("freeman_logo.png", width=50)
 
 with col3:
-st.write("")
+    st.write("")
 
     #Text Heading
         st.title("Freeman Hospital TAVI Length of Stay and Risk Calculator")
