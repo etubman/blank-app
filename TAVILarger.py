@@ -27,9 +27,9 @@ def main():
     sex = st.radio("Sex", ("Male", "Female"))
 
     egfr = st.slider(
-        "eGFR (mL/min/1.73 m²)",
+        "eGFR (mL/min/1.73 m²) on admission",
         min_value=5,
-        max_value=120,
+        max_value=90,
         value=60,
         help="eGFR < 33 indicates renal dysfunction and higher risk"
     )
