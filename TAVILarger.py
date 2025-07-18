@@ -33,7 +33,7 @@ def main():
             st.write("🏥")  # Fallback hospital emoji
     
     with col2:
-        st.title("Freeman Hospital TAVI Length of Stay and Risk Calculator")
+        st.title("Freeman Hospital TAVI Length of Stay and Risk Predictor")
     
     # Inputs
     age = st.number_input("Age (years)", min_value=18, max_value=120, value=82)
