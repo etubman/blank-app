@@ -487,42 +487,7 @@ elif selected_tab == "Results":
         else:
             st.success("✅ **Excellent prognosis!** No significant risk factors identified.")
 
-        # Clinical Recommendations
-        st.subheader("💡 Clinical Recommendations")
-        if category == "Low":
-            st.success(f"""
-            **Low Risk Patient Management:**
-            - ✅ Consider early discharge pathways
-            - ✅ Same-day discharge protocols may be appropriate
-            - ✅ Minimal post-procedural monitoring required
-            - ✅ Standard discharge planning sufficient
-            """)
-        elif category == "Intermediate":
-            st.warning(f"""
-            **Intermediate Risk Patient Management:**
-            - ⚠️ Standard post-procedural monitoring protocol
-            - ⚠️ Plan procedure for mid-week when possible
-            - ⚠️ Ensure adequate weekend coverage if needed
-            - ⚠️ Consider early physiotherapy consultation
-            """)
-        elif category == "High":
-            st.error(f"""
-            **High Risk Patient Management:**
-            - 🚨 Enhanced monitoring recommended
-            - 🚨 Early involvement of discharge planning team
-            - 🚨 Consider extended cardiac monitoring
-            - 🚨 Plan for potential complications
-            - 🚨 Ensure adequate weekend medical coverage
-            """)
-        else:  # Very High
-            st.error(f"""
-            **Very High Risk Patient Management:**
-            - 🔴 **Multidisciplinary approach essential**
-            - 🔴 Consider ICU/CCU monitoring post-procedure
-            - 🔴 Immediate discharge planning team involvement
-            - 🔴 Family counseling regarding extended stay
-            - 🔴 Plan for comprehensive post-discharge support
-            """)
+
 
         # 🔄 New Patient Button
         st.markdown("---")
