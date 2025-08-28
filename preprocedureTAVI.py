@@ -53,7 +53,7 @@ st.markdown(f"""
          style="height: 100px; margin-right: 1rem;" alt="Medtronic Logo">
     <div>
         <h1 style="color: white; margin: 0; font-family: sans-serif;">
-            🫀 TAVI Pre-Procedure Length of Stay Calculator
+            TAVI Pre-Procedure Length of Stay Calculator
         </h1>
         <p style="color: white; margin: 0; font-family: sans-serif;">
             Predict length of stay based on pre-procedural patient characteristics
