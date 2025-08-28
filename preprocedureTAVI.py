@@ -6,6 +6,26 @@ import streamlit as st
 st.set_page_config(page_title="TAVI LOS Calculator", layout="wide")
 
 # --------------------------
+# Default Patient Values
+# --------------------------
+DEFAULTS = {
+    "age": 82,
+    "sex": "Male",
+    "bmi": 25.0,
+    "cfs": 4,
+    "lvef": 55,
+    "diabetes": False,
+    "ckd": False,
+    "copd": False,
+    "af": False,
+    "prior_cabg": False,
+    "prior_pci": False,
+    "prior_stroke": False,
+    "pulm_hypertension": False,
+    "approach": "Transfemoral",
+}
+
+# --------------------------
 # Custom Global Styling (Medtronic colors)
 # --------------------------
 st.markdown("""
@@ -49,11 +69,11 @@ st.markdown(f"""
     padding: 1rem; border-radius: 10px; margin-bottom: 2rem;
     display: flex; align-items: center;
 ">
-    <img src="https://s3.eu-north-1.amazonaws.com/cdn-site.mediaplanet.com/app/uploads/sites/42/2021/11/07145553/P3-Full-Medtronic-logo.png"
+ <img src="https://s3.eu-north-1.amazonaws.com/cdn-site.mediaplanet.com/app/uploads/sites/42/2021/11/07145553/P3-Full-Medtronic-logo.png"
          style="height: 100px; margin-right: 1rem;" alt="Medtronic Logo">
     <div>
         <h1 style="color: white; margin: 0; font-family: sans-serif;">
-            TAVI Pre-Procedure Length of Stay Calculator
+            🫀 TAVI Pre-Procedure Length of Stay Calculator
         </h1>
         <p style="color: white; margin: 0; font-family: sans-serif;">
             Predict length of stay based on pre-procedural patient characteristics
@@ -67,6 +87,9 @@ st.markdown(f"""
 # --------------------------
 if "active_tab" not in st.session_state:
     st.session_state.active_tab = "Assessment"
+
+for key, val in DEFAULTS.items():
+    st.session_state.setdefault(key, val)
 
 # --------------------------
 # Function: Risk Score Calculation
@@ -83,7 +106,7 @@ def calculate_los_risk(age, sex, bmi, diabetes, ckd, copd, af, prior_cabg,
         score += 1
 
     # Sex
-    if not sex:  # female
+    if sex == "Female":
         score += 1
 
     # BMI extremes
@@ -152,10 +175,10 @@ if selected_tab == "Assessment":
     st.subheader("👤 Patient Demographics")
     col1, col2, col3 = st.columns(3)
     with col1:
-        age = st.number_input("Age (years)", min_value=50, max_value=100, value=82)
-        sex = st.radio("Sex", ("Male", "Female"))
+        age = st.number_input("Age (years)", min_value=50, max_value=100, value=st.session_state.age, key="age")
+        sex = st.radio("Sex", ("Male", "Female"), index=0 if st.session_state.sex == "Male" else 1, key="sex")
     with col2:
-        bmi = st.number_input("BMI (kg/m²)", min_value=15.0, max_value=50.0, value=25.0, step=0.1)
+        bmi = st.number_input("BMI (kg/m²)", min_value=15.0, max_value=50.0, value=st.session_state.bmi, step=0.1, key="bmi")
         if bmi < 18.5:
             bmi_cat = "Underweight"
         elif bmi < 25:
@@ -166,7 +189,7 @@ if selected_tab == "Assessment":
             bmi_cat = "Obese"
         st.caption(f"BMI Category: {bmi_cat}")
     with col3:
-        cfs = st.slider("Clinical Frailty Score", 1, 9, 4)
+        cfs = st.slider("Clinical Frailty Score", 1, 9, st.session_state.cfs, key="cfs")
         if cfs <= 3:
             cfs_desc = "Fit"
         elif cfs <= 6:
@@ -176,7 +199,7 @@ if selected_tab == "Assessment":
         st.caption(f"Frailty Status: {cfs_desc}")
 
     st.subheader("💓 Cardiac Function")
-    lvef = st.slider("LVEF (%)", min_value=15, max_value=70, value=55)
+    lvef = st.slider("LVEF (%)", min_value=15, max_value=70, value=st.session_state.lvef, key="lvef")
     if lvef < 40:
         lvef_desc = "Reduced"
     elif lvef < 50:
@@ -188,25 +211,32 @@ if selected_tab == "Assessment":
     st.subheader("🩺 Comorbidities")
     col1, col2, col3 = st.columns(3)
     with col1:
-        diabetes = st.checkbox("Diabetes Mellitus")
-        copd = st.checkbox("COPD / Chronic Lung Disease")
-        af = st.checkbox("Atrial Fibrillation")
+        diabetes = st.checkbox("Diabetes Mellitus", value=st.session_state.diabetes, key="diabetes")
+        copd = st.checkbox("COPD / Chronic Lung Disease", value=st.session_state.copd, key="copd")
+        af = st.checkbox("Atrial Fibrillation", value=st.session_state.af, key="af")
     with col2:
-        ckd = st.checkbox("Chronic Kidney Disease (Stage 3–5)")
-        prior_cabg = st.checkbox("Prior CABG")
-        prior_pci = st.checkbox("Prior PCI")
+        ckd = st.checkbox("Chronic Kidney Disease (Stage 3–5)", value=st.session_state.ckd, key="ckd")
+        prior_cabg = st.checkbox("Prior CABG", value=st.session_state.prior_cabg, key="prior_cabg")
+        prior_pci = st.checkbox("Prior PCI", value=st.session_state.prior_pci, key="prior_pci")
     with col3:
-        prior_stroke = st.checkbox("Previous Stroke/TIA")
-        pulm_hypertension = st.checkbox("Pulmonary Hypertension")
+        prior_stroke = st.checkbox("Previous Stroke/TIA", value=st.session_state.prior_stroke, key="prior_stroke")
+        pulm_hypertension = st.checkbox("Pulmonary Hypertension", value=st.session_state.pulm_hypertension, key="pulm_hypertension")
 
     st.subheader("🩻 Procedural Details")
-    approach = st.radio("Planned TAVI Approach", ("Transfemoral", "Transapical", "Subclavian/Axillary", "Other"))
+    approach = st.radio("Planned TAVI Approach", 
+                        ("Transfemoral", "Transapical", "Subclavian/Axillary", "Other"),
+                        index=["Transfemoral", "Transapical", "Subclavian/Axillary", "Other"].index(st.session_state.approach),
+                        key="approach")
 
     # Calculate Button
     if st.button("🔮 Calculate Predicted Length of Stay", use_container_width=True):
         st.session_state.result = calculate_los_risk(
-            age, sex == "Male", bmi, diabetes, ckd, copd, af, prior_cabg,
-            prior_pci, prior_stroke, lvef, pulm_hypertension, cfs, approach
+            st.session_state.age, st.session_state.sex, st.session_state.bmi,
+            st.session_state.diabetes, st.session_state.ckd, st.session_state.copd,
+            st.session_state.af, st.session_state.prior_cabg, st.session_state.prior_pci,
+            st.session_state.prior_stroke, st.session_state.lvef,
+            st.session_state.pulm_hypertension, st.session_state.cfs,
+            st.session_state.approach
         )
         st.session_state.active_tab = "Results"
         st.rerun()
@@ -228,6 +258,16 @@ elif selected_tab == "Results":
             <p>Total Risk Score: {score}</p>
         </div>
         """, unsafe_allow_html=True)
+
+        # 🔄 New Patient Button
+        if st.button("➕ New Patient Entry", use_container_width=True):
+            # reset everything to defaults
+            for key, val in DEFAULTS.items():
+                st.session_state[key] = val
+            st.session_state.pop("result", None)
+            st.session_state.active_tab = "Assessment"
+            st.rerun()
+
     else:
         st.warning("Please complete the patient assessment and calculate risk first.")
 
@@ -236,4 +276,5 @@ elif selected_tab == "Results":
 # --------------------------
 elif selected_tab == "Disclaimer":
     st.subheader("⚠️ Disclaimer")
-    st.info("This predictive tool is in its early stages and is not a substitute for professional clinical judgment.")
+    st.info("This calculator is intended for research and educational purposes only. "
+            "It is not a substitute for professional clinical judgment.")
