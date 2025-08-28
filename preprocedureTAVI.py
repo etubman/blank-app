@@ -49,7 +49,7 @@ st.markdown(f"""
     padding: 1rem; border-radius: 10px; margin-bottom: 2rem;
     display: flex; align-items: center;
 ">
-    <img src="https://static.cdnlogo.com/logos/m/8/medtronic.svg"
+    <img src="https://download.logo.wine/logo/Medtronic/Medtronic-Logo.wine.png"
          style="height: 50px; margin-right: 1rem;" alt="Medtronic Logo">
     <div>
         <h1 style="color: white; margin: 0; font-family: sans-serif;">
