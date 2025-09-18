@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 
 def calculate_los_risk(age, sex_male, bmi, diabetes, ckd, copd, af, prior_cabg, 
-                      prior_pci, prior_stroke, lvef, pulm_hypertension, cfs, 
+                      prior_pci, prior_stroke, lvef, pulm_hypertension, lbbb, cfs, 
                       eurocore_log, sts_score, approach):
     """
     Calculate TAVI length of stay based on pre-procedural risk factors
@@ -29,6 +29,8 @@ def calculate_los_risk(age, sex_male, bmi, diabetes, ckd, copd, af, prior_cabg,
     if prior_stroke:
         risk_score += 1
     if pulm_hypertension:
+        risk_score += 1
+    if lbbb:  # Left Bundle Branch Block
         risk_score += 1
     
     # Functional factors
@@ -137,6 +139,7 @@ def main():
         ckd = st.checkbox("Chronic kidney disease (Stage 3-5)")
         copd = st.checkbox("COPD/Chronic lung disease")
         af = st.checkbox("Atrial fibrillation")
+        lbbb = st.checkbox("Left Bundle Branch Block (LBBB)")
     
     with col2:
         prior_cabg = st.checkbox("Previous CABG")
@@ -175,7 +178,7 @@ def main():
     if st.button("🔮 Calculate Predicted Length of Stay", type="primary"):
         risk_score, risk_category, predicted_los, discharge_advice, color = calculate_los_risk(
             age, sex == "Male", bmi, diabetes, ckd, copd, af, prior_cabg,
-            prior_pci, prior_stroke, lvef, pulm_hypertension, cfs,
+            prior_pci, prior_stroke, lvef, pulm_hypertension, lbbb, cfs,
             eurocore_log, sts_score, approach
         )
         
@@ -185,7 +188,7 @@ def main():
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.metric("Risk Score", f"{risk_score}/20")
+            st.metric("Risk Score", f"{risk_score}/21")
         
         with col2:
             st.metric("Risk Category", f"{color} {risk_category}")
@@ -224,6 +227,8 @@ def main():
                 risk_factors.append("COPD/Chronic lung disease (+1)")
             if af:
                 risk_factors.append("Atrial fibrillation (+1)")
+            if lbbb:
+                risk_factors.append("Left Bundle Branch Block (+1)")
             if prior_cabg:
                 risk_factors.append("Previous CABG (+1)")
             if prior_stroke:
