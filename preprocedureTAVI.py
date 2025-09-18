@@ -261,8 +261,8 @@ if selected_tab == "Assessment":
         sex = st.radio("Sex", ("Male", "Female"),
                        index=0 if st.session_state.sex == "Male" else 1, key="sex")
     with col2:
-        bmi = st.number_input("BMI (kg/m²)", 15.0, 50.0,
-                              value=st.session_state.bmi, step=0.1, key="bmi")
+        bmi = st.number_input("BMI (kg/m²)", min_value=15, max_value=50,
+                        value=int(st.session_state.bmi), step=1, key="bmi")
         st.caption(f"BMI Category: {'Underweight' if bmi<18.5 else 'Normal' if bmi<25 else 'Overweight' if bmi<30 else 'Obese'}")
     with col3:
         cfs = st.slider("Clinical Frailty Score", 1, 9, st.session_state.cfs, key="cfs")
