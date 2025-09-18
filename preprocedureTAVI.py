@@ -3,7 +3,7 @@ import pandas as pd
 
 def calculate_los_risk(age, sex_male, bmi, diabetes, ckd, copd, af, prior_cabg, 
                       prior_pci, prior_stroke, lvef, pulm_hypertension, lbbb, cfs, 
-                      eurocore_log, sts_score, approach):
+                      approach):
     """
     Calculate TAVI length of stay based on pre-procedural risk factors
     """
@@ -45,17 +45,6 @@ def calculate_los_risk(age, sex_male, bmi, diabetes, ckd, copd, af, prior_cabg,
     elif cfs >= 5:
         risk_score += 2
     elif cfs >= 4:
-        risk_score += 1
-    
-    # Surgical risk scores
-    if sts_score >= 8:
-        risk_score += 2
-    elif sts_score >= 4:
-        risk_score += 1
-    
-    if eurocore_log >= 20:
-        risk_score += 2
-    elif eurocore_log >= 10:
         risk_score += 1
     
     # Access approach
@@ -154,16 +143,7 @@ def main():
     with col1:
         lvef = st.slider("LVEF (%)", min_value=15, max_value=70, value=55)
     
-    # Risk Scores
-    st.subheader("📈 Surgical Risk Scores")
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        sts_score = st.number_input("STS Score (%)", min_value=1.0, max_value=30.0, value=5.0, step=0.1)
-    
-    with col2:
-        eurocore_log = st.number_input("EuroSCORE II (%)", min_value=1.0, max_value=50.0, value=8.0, step=0.1)
-    
+
     # Procedural Approach
     st.subheader("🔧 Planned Approach")
     approach = st.selectbox(
@@ -179,7 +159,7 @@ def main():
         risk_score, risk_category, predicted_los, discharge_advice, color = calculate_los_risk(
             age, sex == "Male", bmi, diabetes, ckd, copd, af, prior_cabg,
             prior_pci, prior_stroke, lvef, pulm_hypertension, lbbb, cfs,
-            eurocore_log, sts_score, approach
+            approach
         )
         
         # Display results
@@ -188,7 +168,7 @@ def main():
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.metric("Risk Score", f"{risk_score}/21")
+            st.metric("Risk Score", f"{risk_score}/20")
         
         with col2:
             st.metric("Risk Category", f"{color} {risk_category}")
@@ -247,16 +227,6 @@ def main():
                 risk_factors.append("Clinical Frailty Score 5-6 (+2)")
             elif cfs >= 4:
                 risk_factors.append("Clinical Frailty Score 4 (+1)")
-            
-            if sts_score >= 8:
-                risk_factors.append("STS Score ≥8% (+2)")
-            elif sts_score >= 4:
-                risk_factors.append("STS Score 4-7.9% (+1)")
-            
-            if eurocore_log >= 20:
-                risk_factors.append("EuroSCORE II ≥20% (+2)")
-            elif eurocore_log >= 10:
-                risk_factors.append("EuroSCORE II 10-19.9% (+1)")
             
             if approach == "Non-transfemoral":
                 risk_factors.append("Non-transfemoral access (+2)")
