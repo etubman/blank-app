@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 
 def calculate_los_risk(age, sex_male, bmi, diabetes, ckd, copd, af, prior_cabg, 
-                      prior_pci, prior_stroke, lvef, pulm_hypertension, lbbb, cfs, 
-                      approach):
+                      prior_pci, prior_stroke, lvef, pulm_hypertension, cfs, 
+                      eurocore_log, sts_score, approach):
     """
     Calculate TAVI length of stay based on pre-procedural risk factors
     """
@@ -30,8 +30,6 @@ def calculate_los_risk(age, sex_male, bmi, diabetes, ckd, copd, af, prior_cabg,
         risk_score += 1
     if pulm_hypertension:
         risk_score += 1
-    if lbbb:  # Left Bundle Branch Block
-        risk_score += 1
     
     # Functional factors
     if lvef < 40:
@@ -45,6 +43,17 @@ def calculate_los_risk(age, sex_male, bmi, diabetes, ckd, copd, af, prior_cabg,
     elif cfs >= 5:
         risk_score += 2
     elif cfs >= 4:
+        risk_score += 1
+    
+    # Surgical risk scores
+    if sts_score >= 8:
+        risk_score += 2
+    elif sts_score >= 4:
+        risk_score += 1
+    
+    if eurocore_log >= 20:
+        risk_score += 2
+    elif eurocore_log >= 10:
         risk_score += 1
     
     # Access approach
@@ -128,7 +137,6 @@ def main():
         ckd = st.checkbox("Chronic kidney disease (Stage 3-5)")
         copd = st.checkbox("COPD/Chronic lung disease")
         af = st.checkbox("Atrial fibrillation")
-        lbbb = st.checkbox("Left Bundle Branch Block (LBBB)")
     
     with col2:
         prior_cabg = st.checkbox("Previous CABG")
@@ -143,7 +151,16 @@ def main():
     with col1:
         lvef = st.slider("LVEF (%)", min_value=15, max_value=70, value=55)
     
-
+    # Risk Scores
+    st.subheader("📈 Surgical Risk Scores")
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        sts_score = st.number_input("STS Score (%)", min_value=1.0, max_value=30.0, value=5.0, step=0.1)
+    
+    with col2:
+        eurocore_log = st.number_input("EuroSCORE II (%)", min_value=1.0, max_value=50.0, value=8.0, step=0.1)
+    
     # Procedural Approach
     st.subheader("🔧 Planned Approach")
     approach = st.selectbox(
@@ -158,8 +175,8 @@ def main():
     if st.button("🔮 Calculate Predicted Length of Stay", type="primary"):
         risk_score, risk_category, predicted_los, discharge_advice, color = calculate_los_risk(
             age, sex == "Male", bmi, diabetes, ckd, copd, af, prior_cabg,
-            prior_pci, prior_stroke, lvef, pulm_hypertension, lbbb, cfs,
-            approach
+            prior_pci, prior_stroke, lvef, pulm_hypertension, cfs,
+            eurocore_log, sts_score, approach
         )
         
         # Display results
@@ -207,8 +224,6 @@ def main():
                 risk_factors.append("COPD/Chronic lung disease (+1)")
             if af:
                 risk_factors.append("Atrial fibrillation (+1)")
-            if lbbb:
-                risk_factors.append("Left Bundle Branch Block (+1)")
             if prior_cabg:
                 risk_factors.append("Previous CABG (+1)")
             if prior_stroke:
@@ -227,6 +242,16 @@ def main():
                 risk_factors.append("Clinical Frailty Score 5-6 (+2)")
             elif cfs >= 4:
                 risk_factors.append("Clinical Frailty Score 4 (+1)")
+            
+            if sts_score >= 8:
+                risk_factors.append("STS Score ≥8% (+2)")
+            elif sts_score >= 4:
+                risk_factors.append("STS Score 4-7.9% (+1)")
+            
+            if eurocore_log >= 20:
+                risk_factors.append("EuroSCORE II ≥20% (+2)")
+            elif eurocore_log >= 10:
+                risk_factors.append("EuroSCORE II 10-19.9% (+1)")
             
             if approach == "Non-transfemoral":
                 risk_factors.append("Non-transfemoral access (+2)")
