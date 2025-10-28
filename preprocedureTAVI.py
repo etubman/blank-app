@@ -27,6 +27,8 @@ def check_password():
 # Page Config
 # --------------------------
 st.set_page_config(page_title="TAVI LOS Calculator", layout="wide")
+if not check_password():
+    st.stop() 
 
 # --------------------------
 # Default Patient Values
