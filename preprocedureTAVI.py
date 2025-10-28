@@ -4,8 +4,6 @@ import plotly.express as px
 import pandas as pd
 from datetime import datetime, timedelta
 
-import streamlit as st
-
 def check_password():
     def password_entered():
         if st.session_state["password"] == "TAVI2025":  
