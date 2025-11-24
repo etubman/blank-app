@@ -129,7 +129,7 @@ def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, 
 
     # Care Needs
     if careneeds == "Yes":
-        score += 1; contributing_factors.append((Care needs", 1))
+        score += 1; contributing_factors.append(("Care needs", 1))
 
     # BMI extremes
     if bmi < 20:
