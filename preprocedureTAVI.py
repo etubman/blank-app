@@ -284,4 +284,20 @@ if st.session_state.active_tab == "Assessment":
         prior_stroke = st.checkbox("Stroke/TIA", key="prior_stroke")
         pulm_hypertension = st.checkbox("Pulmonary Hypertension", key="pulm_hypertension")
 
-    st.subhead
+    st.subheader("🩻 Procedural Details")
+    approach = st.radio("Planned TAVI Approach",
+                        ("Transfemoral", "Transapical", "Subclavian/Axillary", "Other"),
+                        key="approach")
+
+    if st.button("🔮 Calculate Predicted Length of Stay", use_container_width=True):
+        st.session_state.result = calculate_los_risk(
+            st.session_state.age, st.session_state.sex, st.session_state.bmi,
+            st.session_state.diabetes, st.session_state.ckd, st.session_state.copd,
+            st.session_state.af, st.session_state.lbbb,
+            st.session_state.prior_cabg, st.session_state.prior_pci,
+            st.session_state.prior_stroke, st.session_state.lvef,
+            st.session_state.pulm_hypertension, st.session_state.cfs,
+            st.session_state.approach, care_needs_flag
+        )
+        st.session_state.active_tab = "Results"
+        st.rerun()
