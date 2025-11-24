@@ -197,6 +197,7 @@ if st.session_state.active_tab == "Assessment":
 
     # NEW CARE NEEDS QUESTION
     st.subheader("🏡 Care Needs")
+st.write("Does the patient have newly identified care needs, or an existing package of care?")
     care_needs = st.radio(
         "Does the patient have newly identified care needs or an existing package of care?",
         ("No", "Yes"),
