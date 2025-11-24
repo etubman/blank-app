@@ -36,6 +36,7 @@ if not check_password():
 DEFAULTS = {
     "age": 82,
     "sex": "Male",
+    "careneeds": "No",
     "bmi": 25.0,
     "cfs": 4,
     "lvef": 55,
@@ -110,7 +111,7 @@ for key, val in DEFAULTS.items():
 # --------------------------
 # Risk Score Calculation
 # --------------------------
-def calculate_los_risk(age, sex, bmi, diabetes, ckd, copd, af, lbbb, prior_cabg,
+def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, prior_cabg,
                        prior_pci, prior_stroke, lvef, pulm_hypertension,
                        cfs, approach):
     score = 0
@@ -125,6 +126,10 @@ def calculate_los_risk(age, sex, bmi, diabetes, ckd, copd, af, lbbb, prior_cabg,
     # Sex
     if sex == "Female":
         score += 1; contributing_factors.append(("Female sex", 1))
+
+    # Care Needs
+    if careneeds == "Yes":
+        score += 1; contributing_factors.append((Care needs", 1))
 
     # BMI extremes
     if bmi < 20:
@@ -281,6 +286,8 @@ if selected_tab == "Assessment":
         age = st.number_input("Age (years)", 50, 100, st.session_state.age, key="age")
         sex = st.radio("Sex", ("Male", "Female"),
                        index=0 if st.session_state.sex == "Male" else 1, key="sex")
+        careneeds = st.radio("Does this patient have newly identified care needs or an existing package of care?", ("Yes", "No"),
+                        index=0 if st.session_state.careneeds == "No" else 1, key="careneeds")
     with col2:
         bmi = st.number_input("BMI (kg/m²)", min_value=15, max_value=50,
                         value=int(st.session_state.bmi), step=1, key="bmi")
@@ -316,7 +323,7 @@ if selected_tab == "Assessment":
 
     if st.button("🔮 Calculate Predicted Length of Stay", use_container_width=True):
         st.session_state.result = calculate_los_risk(
-            st.session_state.age, st.session_state.sex, st.session_state.bmi,
+            st.session_state.age, st.session_state.sex, st.session_state.careneeds, st.session_state.bmi,
             st.session_state.diabetes, st.session_state.ckd, st.session_state.copd,
             st.session_state.af, st.session_state.lbbb,
             st.session_state.prior_cabg, st.session_state.prior_pci,
