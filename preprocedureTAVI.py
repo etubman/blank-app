@@ -77,7 +77,7 @@ div.stButton > button:hover {
     color: white;
 }
 .stRadio label, .stCheckbox label {
-    color: white !important;
+    color: gray !important;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -286,8 +286,7 @@ if selected_tab == "Assessment":
         age = st.number_input("Age (years)", 50, 100, st.session_state.age, key="age")
         sex = st.radio("Sex", ("Male", "Female"),
                        index=0 if st.session_state.sex == "Male" else 1, key="sex")
-        st.write("Does this patient have newly identified care needs or an existing package of care?")
-        careneeds = st.radio("Care Needs", ("Yes", "No"),
+        careneeds = st.radio("Does this patient have newly identified care needs or an existing package of care?", ("Yes", "No"),
                         index=0 if st.session_state.careneeds == "No" else 1, key="careneeds")
     with col2:
         bmi = st.number_input("BMI (kg/m²)", min_value=15, max_value=50,
