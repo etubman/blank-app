@@ -197,9 +197,10 @@ if st.session_state.active_tab == "Assessment":
 
     # NEW CARE NEEDS QUESTION
     st.subheader("🏡 Care Needs")
-    care_needs = st.checkbox(
+    care_needs = st.radio(
         "Does the patient have newly identified care needs or an existing package of care?",
-        value=st.session_state.care_needs,
+        ("No", "Yes"),
+        index=1 if st.session_state.care_needs else 0,
         key="care_needs"
     )
 
