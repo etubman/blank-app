@@ -38,7 +38,6 @@ DEFAULTS = {
     "sex": "Male",
     "bmi": 25.0,
     "cfs": 4,
-    "care_needs": False,
     "lvef": 55,
     "diabetes": False,
     "ckd": False,
@@ -167,10 +166,6 @@ def calculate_los_risk(age, sex, bmi, diabetes, ckd, copd, af, lbbb, prior_cabg,
     elif cfs == 4:
         score += 1; contributing_factors.append(("Clinical Frailty Score 4", 1))
 
-    # Care Needs (NEW)
-    if care_needs:
-        contributing_factors.append(("New or existing care needs", 1))
-
     # Approach
     if approach != "Transfemoral":
         score += 2; contributing_factors.append(("Non-transfemoral access", 2))
@@ -188,14 +183,6 @@ def calculate_los_risk(age, sex, bmi, diabetes, ckd, copd, af, lbbb, prior_cabg,
     else:
         category = "Very High"; los = ">5 days"; los_min, los_max = 6, 10
         color, color_code = "🔴", "#dc3545"
-
-    # Add 1 day if Care Needs = Yes
-    if care_needs:
-        los_min += 1
-        los_max += 1
-
-
-    los = f"{base_min}–{base_max} days"
 
     return score, category, los, color, color_code, contributing_factors, los_min, los_max
 
@@ -302,12 +289,6 @@ if selected_tab == "Assessment":
         cfs = st.slider("Clinical Frailty Score", 1, 9, st.session_state.cfs, key="cfs")
         st.caption(f"Frailty Status: {'Fit' if cfs<=3 else 'Vulnerable to mildly frail' if cfs<=6 else 'Severely frail'}")
 
-    st.subheader("🧑‍🦳 Care Needs")
-    st.session_state.care_needs = st.radio(
-        "Does the patient have newly identified care needs, or an existing package of care?",
-        ("No", "Yes"), key="care_needs_option"
-    ) == "Yes"
-    
     st.subheader("💓 Cardiac Function")
     lvef = st.slider("LVEF (%)", 15, 70, st.session_state.lvef, key="lvef")
     st.caption(f"LVEF Classification: {'Reduced' if lvef<40 else 'Mildly reduced' if lvef<50 else 'Normal'}")
