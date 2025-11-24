@@ -77,7 +77,7 @@ div.stButton > button:hover {
     color: white;
 }
 .stRadio label, .stCheckbox label {
-    color: gray !important;
+    color: black !important;
 }
 </style>
 """, unsafe_allow_html=True)
