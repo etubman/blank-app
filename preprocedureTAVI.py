@@ -45,11 +45,17 @@ DEFAULTS = {
     "copd": False,
     "af": False,
     "lbbb": False,
+    "rbbb": False,
     "prior_cabg": False,
     "prior_pci": False,
     "prior_stroke": False,
     "pulm_hypertension": False,
     "approach": "Transfemoral",
+    "include_procedural": False,
+    "procedure_duration": 45,
+    "contrast_load": 150,
+    "vascular_complication": False,
+    "valve_type": "Balloon-Expandable",
 }
 
 # --------------------------
@@ -111,9 +117,10 @@ for key, val in DEFAULTS.items():
 # --------------------------
 # Risk Score Calculation
 # --------------------------
-def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, prior_cabg,
+def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, rbbb, prior_cabg,
                        prior_pci, prior_stroke, lvef, pulm_hypertension,
-                       cfs, approach):
+                       cfs, approach, include_procedural=False, procedure_duration=None,
+                       contrast_load=None, vascular_complication=False, valve_type=None):
     score = 0
     contributing_factors = []
 
@@ -148,6 +155,8 @@ def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, 
         score += 1; contributing_factors.append(("Atrial fibrillation", 1))
     if lbbb:
         score += 1; contributing_factors.append(("Left bundle branch block (LBBB)", 1))
+    if rbbb:
+        score += 1; contributing_factors.append(("Right bundle branch block (RBBB)", 1))
     if prior_cabg:
         score += 1; contributing_factors.append(("Prior CABG", 1))
     if prior_pci:
@@ -175,6 +184,28 @@ def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, 
     if approach != "Transfemoral":
         score += 2; contributing_factors.append(("Non-transfemoral access", 2))
 
+    # Procedural Factors (if included)
+    if include_procedural:
+        # Procedure Duration
+        if procedure_duration > 75:
+            score += 2; contributing_factors.append(("Procedure duration >75 min", 2))
+        elif procedure_duration > 60:
+            score += 1; contributing_factors.append(("Procedure duration >60 min", 1))
+        
+        # Contrast Load
+        if contrast_load > 250:
+            score += 2; contributing_factors.append(("Contrast load >250 ml", 2))
+        elif contrast_load > 200:
+            score += 1; contributing_factors.append(("Contrast load >200 ml", 1))
+        
+        # Vascular Complication
+        if vascular_complication:
+            score += 2; contributing_factors.append(("Vascular complication", 2))
+        
+        # Valve Type
+        if valve_type == "Self-Expanding":
+            score += 1; contributing_factors.append(("Self-expanding valve", 1))
+
     # ✅ Updated LOS categories (average ~1 day)
     if score <= 4:
         category = "Low"; los = "0–1 days"; los_min, los_max = 0, 1
@@ -200,13 +231,13 @@ def create_risk_gauge(score, category, color_code):
         value=score,
         title={'text': f"<b>Risk Score</b><br><span style='font-size:0.8em'>{category} Risk</span>"},
         gauge={
-            'axis': {'range': [None, 20]},
+            'axis': {'range': [None, 27]},
             'bar': {'color': color_code, 'thickness': 0.3},
             'steps': [
                 {'range': [0, 4], 'color': '#d4edda'},
                 {'range': [4, 8], 'color': '#fff3cd'},
                 {'range': [8, 12], 'color': '#f8d7da'},
-                {'range': [12, 20], 'color': '#f5c6cb'}
+                {'range': [12, 27], 'color': '#f5c6cb'}
             ],
             'threshold': {'line': {'color': color_code, 'width': 4}, 'value': score}
         }
@@ -307,6 +338,7 @@ if selected_tab == "Assessment":
         copd = st.checkbox("COPD / Chronic Lung Disease", value=st.session_state.copd, key="copd")
         af = st.checkbox("Atrial Fibrillation", value=st.session_state.af, key="af")
         lbbb = st.checkbox("Left bundle branch block (LBBB)", value=st.session_state.lbbb, key="lbbb")
+        rbbb = st.checkbox("Right bundle branch block (RBBB)", value=st.session_state.rbbb, key="rbbb")
     with col2:
         ckd = st.checkbox("Chronic Kidney Disease (Stage 3–5)", value=st.session_state.ckd, key="ckd")
         prior_cabg = st.checkbox("Prior CABG", value=st.session_state.prior_cabg, key="prior_cabg")
@@ -321,28 +353,80 @@ if selected_tab == "Assessment":
                         index=["Transfemoral", "Transapical", "Subclavian/Axillary", "Other"].index(st.session_state.approach),
                         key="approach")
 
+    st.subheader("⚙️ Procedural Factors (Optional)")
+    include_procedural = st.checkbox("Include procedural factors in risk assessment", 
+                                    value=st.session_state.include_procedural, key="include_procedural")
+    
+    if include_procedural:
+        col1, col2 = st.columns(2)
+        with col1:
+            procedure_duration = st.slider("Procedure Duration (minutes)", 
+                                          min_value=20, max_value=100, 
+                                          value=st.session_state.procedure_duration,
+                                          step=5,
+                                          format="%d min" if st.session_state.procedure_duration < 90 else ">90 min",
+                                          key="procedure_duration")
+            if procedure_duration >= 90:
+                st.caption("Duration: >90 minutes")
+            
+            contrast_load = st.slider("Contrast Load (ml)", 
+                                     min_value=50, max_value=320, 
+                                     value=st.session_state.contrast_load,
+                                     step=10,
+                                     key="contrast_load")
+            if contrast_load < 80:
+                st.caption("Load: <80 ml")
+            elif contrast_load > 300:
+                st.caption("Load: >300 ml")
+        
+        with col2:
+            vascular_complication = st.checkbox("Vascular Complication", 
+                                               value=st.session_state.vascular_complication, 
+                                               key="vascular_complication")
+            
+            valve_type = st.radio("Valve Type", 
+                                 ("Balloon-Expandable", "Self-Expanding"),
+                                 index=0 if st.session_state.valve_type == "Balloon-Expandable" else 1,
+                                 key="valve_type")
+
     if st.button("🔮 Calculate Predicted Length of Stay", use_container_width=True):
-        st.session_state.result = calculate_los_risk(
-            st.session_state.age, st.session_state.sex, st.session_state.careneeds, st.session_state.bmi,
-            st.session_state.diabetes, st.session_state.ckd, st.session_state.copd,
-            st.session_state.af, st.session_state.lbbb,
-            st.session_state.prior_cabg, st.session_state.prior_pci,
-            st.session_state.prior_stroke, st.session_state.lvef,
-            st.session_state.pulm_hypertension, st.session_state.cfs,
-            st.session_state.approach
-        )
+        if include_procedural:
+            st.session_state.result = calculate_los_risk(
+                st.session_state.age, st.session_state.sex, st.session_state.careneeds, st.session_state.bmi,
+                st.session_state.diabetes, st.session_state.ckd, st.session_state.copd,
+                st.session_state.af, st.session_state.lbbb, st.session_state.rbbb,
+                st.session_state.prior_cabg, st.session_state.prior_pci,
+                st.session_state.prior_stroke, st.session_state.lvef,
+                st.session_state.pulm_hypertension, st.session_state.cfs,
+                st.session_state.approach, include_procedural=True,
+                procedure_duration=st.session_state.procedure_duration,
+                contrast_load=st.session_state.contrast_load,
+                vascular_complication=st.session_state.vascular_complication,
+                valve_type=st.session_state.valve_type
+            )
+        else:
+            st.session_state.result = calculate_los_risk(
+                st.session_state.age, st.session_state.sex, st.session_state.careneeds, st.session_state.bmi,
+                st.session_state.diabetes, st.session_state.ckd, st.session_state.copd,
+                st.session_state.af, st.session_state.lbbb, st.session_state.rbbb,
+                st.session_state.prior_cabg, st.session_state.prior_pci,
+                st.session_state.prior_stroke, st.session_state.lvef,
+                st.session_state.pulm_hypertension, st.session_state.cfs,
+                st.session_state.approach
+            )
         st.session_state.active_tab = "Results"
         st.rerun()
 
 elif selected_tab == "Results":
     if "result" in st.session_state:
         score, category, los, color, color_code, contributing_factors, los_min, los_max = st.session_state.result
+        max_score = 27 if st.session_state.include_procedural else 20
         st.markdown(f"""
         <div style="background: linear-gradient(90deg, {color_code}, #f8f9fa);
             padding:20px; border-radius:10px; color:white; text-align:center;">
             <h2>Risk Category: {color} {category}</h2>
             <h3>Predicted Length of Stay: {los}</h3>
-            <p>Total Risk Score: {score}/20</p>
+            <p>Total Risk Score: {score}/{max_score}</p>
         </div>
         """, unsafe_allow_html=True)
 
