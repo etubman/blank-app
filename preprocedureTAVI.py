@@ -347,17 +347,16 @@ if selected_tab == "Assessment":
         prior_stroke = st.checkbox("Previous Stroke/TIA", value=st.session_state.prior_stroke, key="prior_stroke")
         pulm_hypertension = st.checkbox("Pulmonary Hypertension", value=st.session_state.pulm_hypertension, key="pulm_hypertension")
 
-    st.subheader("🩻 Procedural Details")
-    approach = st.radio("Planned TAVI Approach",
-                        ("Transfemoral", "Transapical", "Subclavian/Axillary", "Other"),
-                        index=["Transfemoral", "Transapical", "Subclavian/Axillary", "Other"].index(st.session_state.approach),
-                        key="approach")
-
     st.subheader("⚙️ Procedural Factors (Optional)")
     include_procedural = st.checkbox("Include procedural factors in risk assessment", 
                                     value=st.session_state.include_procedural, key="include_procedural")
     
     if include_procedural:
+        approach = st.radio("Planned TAVI Approach",
+                            ("Transfemoral", "Transapical", "Subclavian/Axillary", "Other"),
+                            index=["Transfemoral", "Transapical", "Subclavian/Axillary", "Other"].index(st.session_state.approach),
+                            key="approach")
+        
         col1, col2 = st.columns(2)
         with col1:
             procedure_duration = st.slider("Procedure Duration (minutes)", 
@@ -380,7 +379,7 @@ if selected_tab == "Assessment":
                 st.caption("Load: >300 ml")
         
         with col2:
-            vascular_complication = st.checkbox("Vascular Complication", 
+            vascular_complication = st.checkbox("Presence of Vascular Complication", 
                                                value=st.session_state.vascular_complication, 
                                                key="vascular_complication")
             
@@ -388,6 +387,9 @@ if selected_tab == "Assessment":
                                  ("Balloon-Expandable", "Self-Expanding"),
                                  index=0 if st.session_state.valve_type == "Balloon-Expandable" else 1,
                                  key="valve_type")
+    else:
+        # Set default approach when procedural factors are not included
+        approach = "Transfemoral"
 
     if st.button("🔮 Calculate Predicted Length of Stay", use_container_width=True):
         if include_procedural:
