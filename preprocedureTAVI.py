@@ -352,7 +352,7 @@ if selected_tab == "Assessment":
                                     value=st.session_state.include_procedural, key="include_procedural")
     
     if include_procedural:
-        approach = st.radio("Planned TAVI Approach",
+        approach = st.radio("TAVI Approach",
                             ("Transfemoral", "Transapical", "Subclavian/Axillary", "Other"),
                             index=["Transfemoral", "Transapical", "Subclavian/Axillary", "Other"].index(st.session_state.approach),
                             key="approach")
