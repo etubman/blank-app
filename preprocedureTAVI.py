@@ -132,7 +132,7 @@ def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, 
 
     # Sex
     if sex == "Female":
-        score += 1; contributing_factors.append(("Female sex", 1))
+        score += 2; contributing_factors.append(("Female sex", 2))
 
     # Care Needs
     if careneeds == "Yes":
@@ -146,11 +146,11 @@ def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, 
 
     # Comorbidities
     if diabetes:
-        score += 1; contributing_factors.append(("Diabetes mellitus", 1))
+        score += 2; contributing_factors.append(("Diabetes mellitus", 2))
     if ckd:
-        score += 2; contributing_factors.append(("Chronic kidney disease", 2))
+        score += 3; contributing_factors.append(("Chronic kidney disease", 3))
     if copd:
-        score += 1; contributing_factors.append(("COPD/Chronic lung disease", 1))
+        score += 0.5; contributing_factors.append(("COPD/Chronic lung disease", 0.5))
     if af:
         score += 1; contributing_factors.append(("Atrial fibrillation", 1))
     if lbbb:
@@ -164,13 +164,15 @@ def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, 
     if prior_stroke:
         score += 1; contributing_factors.append(("Previous stroke/TIA", 1))
     if pulm_hypertension:
-        score += 1; contributing_factors.append(("Pulmonary hypertension", 1))
+        score += 0.5; contributing_factors.append(("Pulmonary hypertension", 0.5))
 
     # Cardiac function
-    if lvef < 40:
-        score += 2; contributing_factors.append(("LVEF <40%", 2))
+    if lvef < 30:
+        score += 4; contributing_factors.append(("LVEF <30%", 4))
+    elif lvef < 40:
+        score += 3; contributing_factors.append(("LVEF 30-39%", 3))
     elif lvef < 50:
-        score += 1; contributing_factors.append(("LVEF 40-49%", 1))
+        score += 2; contributing_factors.append(("LVEF 40-49%", 2))
 
     # Frailty
     if cfs >= 7:
@@ -182,7 +184,7 @@ def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, 
 
     # Approach
     if approach != "Transfemoral":
-        score += 2; contributing_factors.append(("Non-transfemoral access", 2))
+        score += 4; contributing_factors.append(("Non-transfemoral access", 4))
 
     # Procedural Factors (if included)
     if include_procedural:
@@ -200,20 +202,20 @@ def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, 
         
         # Vascular Complication
         if vascular_complication:
-            score += 2; contributing_factors.append(("Vascular complication", 2))
+            score += 4; contributing_factors.append(("Vascular complication", 4))
         
         # Valve Type
         if valve_type == "Self-Expanding":
             score += 1; contributing_factors.append(("Self-expanding valve", 1))
 
-    # ✅ Updated LOS categories (average ~1 day)
-    if score <= 4:
+    # ✅ Updated LOS categories
+    if score <= 6:
         category = "Low"; los = "0–1 days"; los_min, los_max = 0, 1
         color, color_code = "🟢", "#28a745"
-    elif score <= 8:
+    elif score <= 12:
         category = "Intermediate"; los = "1–2 days"; los_min, los_max = 1, 2
         color, color_code = "🟡", "#ffc107"
-    elif score <= 12:
+    elif score <= 18:
         category = "High"; los = "3–5 days"; los_min, los_max = 3, 5
         color, color_code = "🟠", "#fd7e14"
     else:
@@ -231,13 +233,13 @@ def create_risk_gauge(score, category, color_code):
         value=score,
         title={'text': f"<b>Risk Score</b><br><span style='font-size:0.8em'>{category} Risk</span>"},
         gauge={
-            'axis': {'range': [None, 27]},
+            'axis': {'range': [None, 35]},
             'bar': {'color': color_code, 'thickness': 0.3},
             'steps': [
-                {'range': [0, 4], 'color': '#d4edda'},
-                {'range': [4, 8], 'color': '#fff3cd'},
-                {'range': [8, 12], 'color': '#f8d7da'},
-                {'range': [12, 27], 'color': '#f5c6cb'}
+                {'range': [0, 6], 'color': '#d4edda'},
+                {'range': [6, 12], 'color': '#fff3cd'},
+                {'range': [12, 18], 'color': '#f8d7da'},
+                {'range': [18, 35], 'color': '#f5c6cb'}
             ],
             'threshold': {'line': {'color': color_code, 'width': 4}, 'value': score}
         }
@@ -352,7 +354,7 @@ if selected_tab == "Assessment":
                                     value=st.session_state.include_procedural, key="include_procedural")
     
     if include_procedural:
-        approach = st.radio("TAVI Approach",
+        approach = st.radio("Planned TAVI Approach",
                             ("Transfemoral", "Transapical", "Subclavian/Axillary", "Other"),
                             index=["Transfemoral", "Transapical", "Subclavian/Axillary", "Other"].index(st.session_state.approach),
                             key="approach")
@@ -422,7 +424,7 @@ if selected_tab == "Assessment":
 elif selected_tab == "Results":
     if "result" in st.session_state:
         score, category, los, color, color_code, contributing_factors, los_min, los_max = st.session_state.result
-        max_score = 27 if st.session_state.include_procedural else 20
+        max_score = 35 if st.session_state.include_procedural else 28
         st.markdown(f"""
         <div style="background: linear-gradient(90deg, {color_code}, #f8f9fa);
             padding:20px; border-radius:10px; color:white; text-align:center;">
