@@ -148,7 +148,7 @@ def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, 
     if diabetes:
         score += 2; contributing_factors.append(("Diabetes mellitus", 2))
     if ckd:
-        score += 3; contributing_factors.append(("Chronic kidney disease", 3))
+        score += 4; contributing_factors.append(("Chronic kidney disease", 4))
     if copd:
         score += 0.5; contributing_factors.append(("COPD/Chronic lung disease", 0.5))
     if af:
@@ -176,11 +176,11 @@ def calculate_los_risk(age, sex, careneeds, bmi, diabetes, ckd, copd, af, lbbb, 
 
     # Frailty
     if cfs >= 7:
-        score += 3; contributing_factors.append(("Clinical Frailty Score ≥7", 3))
+        score += 4; contributing_factors.append(("Clinical Frailty Score ≥7", 4))
     elif cfs >= 5:
-        score += 2; contributing_factors.append(("Clinical Frailty Score 5-6", 2))
+        score += 3; contributing_factors.append(("Clinical Frailty Score 5-6", 3))
     elif cfs == 4:
-        score += 1; contributing_factors.append(("Clinical Frailty Score 4", 1))
+        score += 2; contributing_factors.append(("Clinical Frailty Score 4", 2))
 
     # Approach
     if approach != "Transfemoral":
@@ -233,13 +233,13 @@ def create_risk_gauge(score, category, color_code):
         value=score,
         title={'text': f"<b>Risk Score</b><br><span style='font-size:0.8em'>{category} Risk</span>"},
         gauge={
-            'axis': {'range': [None, 35]},
+            'axis': {'range': [None, 37]},
             'bar': {'color': color_code, 'thickness': 0.3},
             'steps': [
                 {'range': [0, 6], 'color': '#d4edda'},
                 {'range': [6, 12], 'color': '#fff3cd'},
                 {'range': [12, 18], 'color': '#f8d7da'},
-                {'range': [18, 35], 'color': '#f5c6cb'}
+                {'range': [18, 37], 'color': '#f5c6cb'}
             ],
             'threshold': {'line': {'color': color_code, 'width': 4}, 'value': score}
         }
@@ -424,7 +424,7 @@ if selected_tab == "Assessment":
 elif selected_tab == "Results":
     if "result" in st.session_state:
         score, category, los, color, color_code, contributing_factors, los_min, los_max = st.session_state.result
-        max_score = 35 if st.session_state.include_procedural else 28
+        max_score = 37 if st.session_state.include_procedural else 30
         st.markdown(f"""
         <div style="background: linear-gradient(90deg, {color_code}, #f8f9fa);
             padding:20px; border-radius:10px; color:white; text-align:center;">
